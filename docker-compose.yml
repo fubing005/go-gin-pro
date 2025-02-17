@@ -1,0 +1,21 @@
+services:
+  golang-1.23:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: golang-gin-server
+    container_name: gin-app
+    ports:
+      - "8080:8080"
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      server-cluster:
+        ipv4_address: 172.18.0.21
+
+networks:
+  server-cluster:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16

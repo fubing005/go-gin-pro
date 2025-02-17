@@ -73,6 +73,7 @@
         ├── setLang.go #翻译中间件
     ├── models #数据模型
     ├── services #业务逻辑
+├── bin #项目打包后的二进制文件
 ├── bootstrap #服务及配置初始化
     ├── clickhouse.go
     ├── config.go
@@ -133,8 +134,23 @@
    - 基于 Redis 的 LUA 实现
    - 自动续期实现
 
-### 运行项目
+### 本地运行项目
 ```bash
 #进入新项目根目录
+go mod tidy
 go run main.go 或者 fresh
+```
+
+# 打包项目
+```bash
+   make          # 构建应用
+   make run        # 构建并运行应用
+   make clean      # 清理生成的二进制文件
+   docker-deploy   # 将构建后的应用部署到docker
+```
+
+# 容器化部署
+```bash
+#构建并且启动项目:
+docker-compose up [-d] --build
 ```
