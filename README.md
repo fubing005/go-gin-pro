@@ -141,7 +141,7 @@ go mod tidy
 go run main.go 或者 fresh
 ```
 
-# 打包项目
+# 打包项目[windows运行环境]
 ```bash
    make          # 构建应用
    make run        # 构建并运行应用
@@ -151,6 +151,6 @@ go run main.go 或者 fresh
 
 # 容器化部署
 ```bash
-#构建并且启动项目:
+# 构建镜像并启动容器
 docker-compose up [-d] --build
 ```

@@ -10,8 +10,10 @@ STATIC_DIR := static
 DOCKER_IMAGE_NAME := golang_gin_server
 # Docker 镜像标签
 DOCKER_IMAGE_TAG := latest
-#配置文件
-CONFIG_FILE := config.yaml
+#源配置文件
+SOURCE_CONFIG_FILE := configDocker.yaml
+#目标配置文件
+DEST_CONFIG_FILE := config.yaml
 #打包后的路径
 DIST_DIR := dist
 
@@ -23,7 +25,8 @@ build: $(SOURCE_FILE) $(STATIC_DIR)
 	@echo "Starting to build the application..."
     # 设置环境变量以交叉编译到 Linux 环境
 	set GOOS=linux 
-	set GOARCH=amd64 
+	set GOARCH=amd64
+	set CGO_ENABLED=0
 	go build -o $(BINARY_NAME) -ldflags="-s -w" $(SOURCE_FILE)
     # 创建打包目录
 	mkdir $(DIST_DIR)
@@ -31,7 +34,7 @@ build: $(SOURCE_FILE) $(STATIC_DIR)
 	move $(BINARY_NAME) $(DIST_DIR)/
     # 复制静态文件到打包目录
 	xcopy /E /I /Y $(STATIC_DIR) $(DIST_DIR)\$(STATIC_DIR)
-	copy  $(CONFIG_FILE) $(DIST_DIR)
+	copy  $(SOURCE_CONFIG_FILE) $(DIST_DIR)\$(DEST_CONFIG_FILE)
 	@echo "Application build completed."
 
 # 构建并运行应用
@@ -50,11 +53,4 @@ clean:
 	rmdir /S /Q $(DIST_DIR)
 	@echo "Cleanup completed."
 
-# 将构建后的应用部署到 Docker
-docker-deploy: build
-    # 构建 Docker 镜像
-    docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) .
-    # 如果你需要将镜像推送到 Docker 仓库，可以取消下面的注释
-    # docker push $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) 
-
-.PHONY: all build run clean docker-deploy latest
+.PHONY: all build run clean latest
