@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket 点对点聊天</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
+        .chat-container { width: 400px; margin: auto; background: white; border-radius: 10px; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .messages { height: 400px; overflow-y: auto; border-bottom: 1px solid #ddd; padding: 10px; display: flex; flex-direction: column; }
+        .message { padding: 8px 12px; margin: 5px; border-radius: 10px; max-width: 70%; word-wrap: break-word; }
+        .sent { background: #09f; color: white; align-self: flex-end; text-align: right; }
+        .received { background: #ddd; align-self: flex-start; }
+        .input-area { display: flex; padding: 10px; }
+        input, button { padding: 10px; border: none; border-radius: 5px; font-size: 16px; }
+        input { flex: 1; border: 1px solid #ccc; margin-right: 5px; }
+        button { background: #09f; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <h3>WebSocket 点对点聊天</h3>
+        <div>
+            <input type="text" id="userId" placeholder="你的ID">
+            <button onclick="connect()">连接</button>
+        </div>
+        <div>
+            <input type="text" id="receiverId" placeholder="聊天对象ID">
+        </div>
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+            <input type="text" id="message" placeholder="输入消息">
+            <button onclick="sendMessage()">发送</button>
+        </div>
+    </div>
+
+    <script>
+        let socket;
+        let userId;
+    
+        function connect() {
+            userId = document.getElementById('userId').value;
+            if (!userId) {
+                alert("请输入你的 ID！");
+                return;
+            }
+    
+            socket = new WebSocket(`ws://127.0.0.1:8080/ws/chat?id=${userId}`);
+    
+            socket.onopen = function(event) {
+                console.log("WebSocket 连接已建立");
+            };
+    
+            socket.onmessage = function(event) {
+                let jsonobj = JSON.parse(event.data);
+
+                if (jsonobj.act === "open" || jsonobj.act === "message") {
+                    console.log(jsonobj.error);
+                } else{
+                    console.log(jsonobj.sender,userId);
+                    let isSender = (jsonobj.sender === userId); // 判断消息是不是自己发送的
+                    appendMessage(jsonobj.sender, jsonobj.content, isSender);
+                }
+            };
+    
+            socket.onclose = function(event) {
+                console.log("WebSocket 连接已关闭");
+            };
+    
+            socket.onerror = function(event) {
+                console.log("WebSocket 连接出错");
+            };
+        }
+    
+        function sendMessage() {
+            let receiverId = document.getElementById('receiverId').value;
+            let message = document.getElementById('message').value;
+            if (!receiverId || !message) {
+                alert("请输入接收者ID和消息！");
+                return;
+            }
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                let msgData = {act:"chat_message", type: 1, sender: userId, receiver: receiverId, content: message };
+                socket.send(JSON.stringify(msgData));
+    
+                appendMessage(userId, message,1);
+    
+                document.getElementById('message').value = '';
+            } else {
+                console.log("WebSocket 未连接！");
+            }
+        }
+    
+        function appendMessage(sender, content, isSender) {
+            let messagesDiv = document.getElementById('messages');
+            let msgElem = document.createElement('div');
+            
+            if (isSender === 1) {
+                msgElem.classList.add('message', 'sent'); // 发送的消息放右侧
+            } else {
+                msgElem.classList.add('message', 'received'); // 接收的消息放左侧
+            }
+
+            msgElem.textContent = `游客(${sender}): ${content}`;
+            messagesDiv.appendChild(msgElem);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+    
+
+</body>
+</html>

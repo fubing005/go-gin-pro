@@ -66,6 +66,11 @@ func setupRouter() *gin.Engine {
 	adminGroup := router.Group("/admin")
 	routes.SetAdminGroupRoutes(adminGroup)
 
+	// 注册websocket路由
+	// router.GET("/ws", websocket.ChatController{}.ChatMessage)
+	wsGroup := router.Group("/ws")
+	routes.SetWebsocketGroupRoutes(wsGroup)
+
 	return router
 }
 

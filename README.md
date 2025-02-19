@@ -146,7 +146,6 @@ go run main.go 或者 fresh
    make          # 构建应用
    make run        # 构建并运行应用
    make clean      # 清理生成的二进制文件
-   docker-deploy   # 将构建后的应用部署到docker
 ```
 
 # 容器化部署
