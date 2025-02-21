@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebSocket 点对点聊天</title>
+    <title>Gin框架 WebSocket 点对点聊天</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 20px; }
         .chat-container { width: 400px; margin: auto; background: white; border-radius: 10px; padding: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -20,7 +20,7 @@
 <body>
 
     <div class="chat-container">
-        <h3>WebSocket 点对点聊天</h3>
+        <h3>Gin框架 WebSocket 点对点聊天</h3>
         <div>
             <input type="text" id="userId" placeholder="你的ID">
             <button onclick="connect()">连接</button>
@@ -32,12 +32,17 @@
         <div class="input-area">
             <input type="text" id="message" placeholder="输入消息">
             <button onclick="sendMessage()">发送</button>
+            <select name="type" id="chatType">
+                <option value="1">普通聊天</option>
+                <option value="2">AI流式聊天</option>
+            </select>
         </div>
     </div>
 
     <script>
         let socket;
         let userId;
+        
     
         function connect() {
             userId = document.getElementById('userId').value;
@@ -58,9 +63,8 @@
                 if (jsonobj.act === "open" || jsonobj.act === "message") {
                     console.log(jsonobj.error);
                 } else{
-                    console.log(jsonobj.sender,userId);
                     let isSender = (jsonobj.sender === userId); // 判断消息是不是自己发送的
-                    appendMessage(jsonobj.sender, jsonobj.content, isSender);
+                    appendMessage(jsonobj.sender, jsonobj.content, isSender,jsonobj.type);
                 }
             };
     
@@ -76,15 +80,16 @@
         function sendMessage() {
             let receiverId = document.getElementById('receiverId').value;
             let message = document.getElementById('message').value;
-            if (!receiverId || !message) {
+            let chatType = document.getElementById('chatType').value;
+            if ((!receiverId || !message) && chatType == 1) {
                 alert("请输入接收者ID和消息！");
                 return;
             }
             if (socket && socket.readyState === WebSocket.OPEN) {
-                let msgData = {act:"chat_message", type: 1, sender: userId, receiver: receiverId, content: message };
+                let msgData = {act:"chat_message", type: parseInt(chatType), sender: userId, receiver: receiverId, content: message };
                 socket.send(JSON.stringify(msgData));
     
-                appendMessage(userId, message,1);
+                appendMessage(userId, message,1,1);
     
                 document.getElementById('message').value = '';
             } else {
@@ -92,18 +97,39 @@
             }
         }
     
-        function appendMessage(sender, content, isSender) {
+        function appendMessage(sender, content, isSender,type=1) {
             let messagesDiv = document.getElementById('messages');
-            let msgElem = document.createElement('div');
-            
-            if (isSender === 1) {
-                msgElem.classList.add('message', 'sent'); // 发送的消息放右侧
-            } else {
-                msgElem.classList.add('message', 'received'); // 接收的消息放左侧
+            let chatType = document.getElementById('chatType').value;
+
+            if (type === 2) { // deepseek AI 流式消息
+                if (!currentAIMessageId) return; // 确保 AI 回复框已创建
+
+                // 追加流式内容
+                let lastAIMessage = document.getElementById(currentAIMessageId);
+                if (lastAIMessage) {
+                    lastAIMessage.textContent += content;
+                }
+
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                return;
             }
 
+            // 处理普通消息（用户提问）
+            let msgElem = document.createElement('div');
+            msgElem.classList.add('message', isSender ? 'sent' : 'received');
             msgElem.textContent = `游客(${sender}): ${content}`;
             messagesDiv.appendChild(msgElem);
+            
+            // 用户提问时，创建新的 AI 回复框
+            if (isSender && chatType == 2) {
+                currentAIMessageId = `ai-msg-${Date.now()}`; // 生成唯一 ID
+                let newAIMessage = document.createElement('p');
+                newAIMessage.id = currentAIMessageId;
+                newAIMessage.classList.add('message', 'received');
+                newAIMessage.textContent = "AI智能客服: ";
+                messagesDiv.appendChild(newAIMessage);
+            }
+
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
     </script>

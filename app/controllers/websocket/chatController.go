@@ -20,5 +20,5 @@ func (con ChatController) ChatMessage(c *gin.Context) {
 		return
 	}
 
-	services_websocket.HandleChatConnections(c, form)
+	services_websocket.HandleChatMessage(c, form)
 }
