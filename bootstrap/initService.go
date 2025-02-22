@@ -1,6 +1,8 @@
 package bootstrap
 
-import "shalabing-gin/global"
+import (
+	"shalabing-gin/global"
+)
 
 func InitializeService() {
 	// 初始化配置
@@ -35,5 +37,5 @@ func InitializeService() {
 	InitializeStorage()
 
 	// 初始化计划任务
-	// bootstrap.InitializeCron()
+	// InitializeCron()
 }

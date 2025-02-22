@@ -103,8 +103,11 @@ func RunServer() {
 	}()
 
 	// 启动消费者
-	// go services_api.RabbitmqService.StartConsumer("queue_order", "exchange", "routing_key")
-	// go services_api.StartConsumer()
+	// go services_api.RabbitmqService.StartConsumer("queue_order", "exchange", "routing_key") //消费rabbitmq队列
+	// go services_api.StartConsumer()//消费kafka队列
+	// 消费订单状态数据，实现订单状态的变更,以及超时订单自动取消，
+	// go services_api.ConsumeMessages()           // 启动消息队列消费者,用于处理订单状态
+	// go services_api.ConsumeDeadLetterMessages() // 启动死信队列消费者,用于处理超时订单
 
 	// 等待中断信号以优雅地关闭服务器（设置 5 秒的超时时间）
 	quit := make(chan os.Signal, 1)

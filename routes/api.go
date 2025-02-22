@@ -31,6 +31,8 @@ func SetApiGroupRoutes(router *gin.RouterGroup) {
 	//rabbitmq
 	//发布消息
 	router.POST("/rabbitmq/publish_message", api.RabbitmqController{}.PublishMessage)
+	router.POST("/rabbitmq/orders", api.RabbitmqController{}.CreateOrder)
+	router.PUT("/rabbitmq/orders/status", api.RabbitmqController{}.UpdateOrderStatus)
 
 	//kafka
 	//发送消息
