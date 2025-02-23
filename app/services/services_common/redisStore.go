@@ -18,8 +18,8 @@ type RedisStore struct {
 // 实现设置captcha的方法
 func (r RedisStore) Set(id string, value string) error {
 	key := CAPTCHA + id
-	//time.Minute*2：有效时间2分钟
-	err := global.App.Redis.Set(ctxRedis, key, value, time.Minute*60).Err()
+	//time.Minute*1：有效时间1分钟
+	err := global.App.Redis.Set(ctxRedis, key, value, time.Minute*1).Err()
 
 	return err
 }

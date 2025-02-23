@@ -19,24 +19,31 @@ func (rabbitMQRequest RabbitMQRequest) GetMessages() request.ValidatorMessages {
 	}
 }
 
-type RabbitMQRequestOrder struct {
-	Amount    float64            `form:"amount" json:"amount"  binding:"omitempty"`
-	Status    models.OrderStatus `form:"status" json:"status"  binding:"omitempty"`
-	NewStatus models.OrderStatus `form:"new_status" json:"new_status"  binding:"omitempty"`
+type RabbitMQRequestOrderCreate struct {
+	Amount    float64            `form:"amount" json:"amount"  binding:"required"`
+	Status    models.OrderStatus `form:"status" json:"status"  binding:"required,oneof=pending paid shipped completed canceled"`
+	UserID    uint               `form:"user_id" json:"user_id"  binding:"required"`
+	ProductID uint               `form:"product_id" json:"product_id"  binding:"required"`
 }
 
-func (rabbitMQRequestOrder RabbitMQRequestOrder) GetMessages() request.ValidatorMessages {
+func (rabbitMQRequestOrderCreate RabbitMQRequestOrderCreate) GetMessages() request.ValidatorMessages {
 	return request.ValidatorMessages{
-		// "id.required": "id is required",
+		"amount.required":     "amount is required",
+		"status.required":     "status is required",
+		"status.oneof":        "status must be one of pending paid shipped completed canceled",
+		"user_id.required":    "user_id is required",
+		"product_id.required": "product_id is required",
 	}
 }
 
-type RabbitMQRequestOrderID struct {
-	ID uint `form:"id" json:"id" binding:"omitempty"` // 绑定 URL 查询参数 id
+type RabbitMQRequestOrderStatusUpdate struct {
+	ID        uint               `form:"id" json:"id" binding:"omitempty"` // 绑定 URL 查询参数 id
+	NewStatus models.OrderStatus `form:"new_status" json:"new_status"  binding:"omitempty"`
 }
 
-func (rabbitMQRequestOrderID RabbitMQRequestOrderID) GetMessages() request.ValidatorMessages {
+func (rabbitMQRequestOrderStatusUpdate RabbitMQRequestOrderStatusUpdate) GetMessages() request.ValidatorMessages {
 	return request.ValidatorMessages{
-		"id.required": "id is required",
+		"id.required":         "id is required",
+		"new_status.required": "new_status is required",
 	}
 }

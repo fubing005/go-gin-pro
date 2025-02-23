@@ -37,5 +37,5 @@ func InitializeService() {
 	InitializeStorage()
 
 	// 初始化计划任务
-	// InitializeCron()
+	InitializeCron()
 }

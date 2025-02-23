@@ -63,4 +63,7 @@ func SetApiGroupRoutes(router *gin.RouterGroup) {
 	router.POST("/elasticsearch/add_document", api.ElasticsearchController{}.AddDocument)
 	router.PUT("/elasticsearch/update_document", api.ElasticsearchController{}.UpdateDocument)
 	router.DELETE("/elasticsearch/delete_document", api.ElasticsearchController{}.DeleteDocument)
+
+	// 一些问题的解决方案
+
 }
