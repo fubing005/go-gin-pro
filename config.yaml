@@ -1,4 +1,4 @@
-app: # 应用基本配置
+app: #应用基本配置
   env: local # 环境名称  可选值:local,prod
   port: 8080 # 服务监听端口号
   app_name: gin-app # 应用名称
